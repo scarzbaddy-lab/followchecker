@@ -1,0 +1,904 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Followback Checker</title>
+  <meta name="description" content="Upload your Facebook following and followers export files to see who you follow that does not follow you back." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg0:#07080c;
+      --bg1:#0c0f18;
+      --card:#0f1320cc;
+      --stroke:#222a3b;
+      --text:#e9eefc;
+      --muted:#aab6d6;
+      --muted2:#8190b8;
+      --bad:#fb7185;
+      --shadow: 0 18px 50px rgba(0,0,0,0.45);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 10% 10%, rgba(139,92,246,0.22), transparent 65%),
+        radial-gradient(900px 600px at 90% 20%, rgba(34,211,238,0.18), transparent 60%),
+        radial-gradient(700px 500px at 50% 100%, rgba(251,113,133,0.10), transparent 65%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 18px 70px; }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 14px; margin-bottom: 18px;
+    }
+    .brand{ display:flex; align-items:center; gap: 12px; }
+    .logo{
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(34,211,238,0.92));
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    .brand h1{ font-size: 16px; margin:0; letter-spacing: 0.2px; }
+    .brand p{ margin:0; font-size: 12px; color: var(--muted); }
+
+    .hero{
+      margin-top: 10px;
+      padding: 22px 22px 18px;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+      box-shadow: var(--shadow);
+    }
+    .hero h2{
+      margin:0 0 8px;
+      font-size: 26px;
+      letter-spacing: -0.2px;
+      line-height: 1.15;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      line-height: 1.55;
+      max-width: 78ch;
+    }
+
+    details{
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+    summary{
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    .chev{
+      width: 10px; height: 10px;
+      border-right: 2px solid rgba(255,255,255,0.7);
+      border-bottom: 2px solid rgba(255,255,255,0.7);
+      transform: rotate(45deg);
+      transition: transform 140ms ease;
+      margin-right: 4px;
+      flex: 0 0 auto;
+    }
+    details[open] .chev{ transform: rotate(225deg); }
+    .steps{
+      padding: 0 14px 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+    .steps ol{ margin: 8px 0 0; padding-left: 18px; }
+    .steps li{ margin: 7px 0; }
+
+    .badge{
+      display:inline-block;
+      font-size: 12px; color: var(--muted);
+      border: 1px solid var(--stroke);
+      padding: 6px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.03);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .grid{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .topbar{ flex-direction: column; align-items: flex-start; }
+    }
+
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid var(--stroke);
+      background: rgba(15,19,32,0.65);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card .hd{
+      padding: 14px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .card .hd h3{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+    }
+    .card .hd span{
+      color: var(--muted2);
+      font-size: 12px;
+    }
+    .card .bd{ padding: 16px; }
+
+    .drop{
+      border: 1px dashed rgba(255,255,255,0.22);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+      transition: 180ms ease;
+    }
+    .drop.drag{
+      border-color: rgba(34,211,238,0.75);
+      background: rgba(34,211,238,0.08);
+    }
+    .drop .row{
+      display:flex; align-items:center; justify-content:space-between; gap: 14px;
+      flex-wrap: wrap;
+    }
+    .drop .label{ font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+
+    input[type="file"]{ display:none; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 160ms ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,0.18); background: rgba(255,255,255,0.09); }
+    .btn:active{ transform: translateY(0px); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(34,211,238,0.75));
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .btn.ghost{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.10);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .btn:disabled{ opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 520px){
+      .controls{ grid-template-columns: 1fr; }
+    }
+    .field label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted2);
+      margin-bottom: 6px;
+    }
+    .field input, .field select{
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+    .field input::placeholder{ color: rgba(170,182,214,0.55); }
+
+    .actions{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; align-items:center; }
+    .msg{
+      margin-top: 10px;
+      color: var(--bad);
+      font-size: 13px;
+      line-height: 1.45;
+      min-height: 18px;
+    }
+
+    .stats{
+      display:flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap: 8px;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .pill strong{ color: var(--text); font-weight: 600; }
+
+    .tableWrap{
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.18);
+    }
+    table{ width:100%; border-collapse: collapse; font-size: 13px; }
+    thead th{
+      text-align:left;
+      padding: 12px 12px;
+      color: var(--muted2);
+      font-weight: 600;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    tbody td{
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      vertical-align: top;
+    }
+    tbody tr:hover{ background: rgba(255,255,255,0.03); }
+
+    .nameCell{
+      display:flex; flex-direction: column; gap: 4px;
+      min-width: 220px;
+    }
+    .nameCell strong{ font-size: 13px; }
+    .sub{ font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+    .mini{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Followback Checker</h1>
+          <p>Upload two files and get your list.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <h2>Find who you follow that does not follow you back</h2>
+      <p>
+        Download your Facebook data as JSON, then upload the two files here:
+        <span class="badge">who_you've_followed.json</span> and <span class="badge">people_who_followed_you.json</span>.
+      </p>
+
+      <details>
+        <summary>
+          <span>How to download the right Facebook files</span>
+          <span class="chev" aria-hidden="true"></span>
+        </summary>
+        <div class="steps">
+          <ol>
+            <li>Open Facebook and go to <strong>Settings</strong> (sometimes under <strong>Settings and privacy</strong>).</li>
+            <li>Go to <strong>Accounts Center</strong> then <strong>Your information and permissions</strong>.</li>
+            <li>Choose <strong>Download your information</strong> (or <strong>Download or transfer information</strong>).</li>
+            <li>Select your <strong>Facebook profile</strong>.</li>
+            <li>Choose <strong>Specific types of information</strong>.</li>
+            <li>Select only <strong>Friends and followers</strong>.</li>
+            <li>For <strong>Format</strong>, choose <strong>JSON</strong>.</li>
+            <li>Create the file. Facebook will notify you when it’s ready.</li>
+            <li>Download the ZIP, extract it, then upload the two JSON files into this page.</li>
+          </ol>
+          <div class="mini" style="margin-top:10px;">
+            Tip: Search inside the extracted folder for:
+            <span class="badge">who_you've_followed.json</span> and <span class="badge">people_who_followed_you.json</span>.
+          </div>
+        </div>
+      </details>
+
+      <details>
+        <summary>
+          <span>Mobile tips (iPhone and Android)</span>
+          <span class="chev" aria-hidden="true"></span>
+        </summary>
+        <div class="steps">
+          <ol>
+            <li><strong>Yes, this works on mobile.</strong> The only tricky part is extracting Facebook’s ZIP file so you can access the two JSON files.</li>
+            <li><strong>iPhone:</strong> Open the ZIP in the Files app, tap it once to extract, then open the new folder and look for the two JSON files. Come back here, tap <strong>Choose file</strong>, and pick them from Files.</li>
+            <li><strong>Android:</strong> Open the ZIP in Files or Downloads, tap <strong>Extract</strong>, then return here and select the two JSON files from the extracted folder.</li>
+            <li>If you cannot see the extracted folder in the picker, choose <strong>Browse</strong> in the file picker and navigate to the extracted folder.</li>
+            <li>If your phone struggles, do the export and extraction on a laptop, then upload the two JSON files from there.</li>
+          </ol>
+        </div>
+      </details>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="hd">
+          <h3>1) Upload</h3>
+          <span>Two files needed</span>
+        </div>
+        <div class="bd">
+          <div id="dropFollowing" class="drop" tabindex="0" role="button" aria-label="Upload who you've followed file">
+            <div class="label">Following file</div>
+            <div class="row">
+              <span class="badge" id="followingName">No file selected</span>
+              <label class="btn" for="followingFile">Choose file</label>
+              <input id="followingFile" type="file" accept=".json,application/json" />
+            </div>
+            <div class="mini" style="margin-top:10px;">Upload <span class="badge">who_you've_followed.json</span></div>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div id="dropFollowers" class="drop" tabindex="0" role="button" aria-label="Upload people who followed you file">
+            <div class="label">Followers file</div>
+            <div class="row">
+              <span class="badge" id="followersName">No file selected</span>
+              <label class="btn" for="followersFile">Choose file</label>
+              <input id="followersFile" type="file" accept=".json,application/json" />
+            </div>
+            <div class="mini" style="margin-top:10px;">Upload <span class="badge">people_who_followed_you.json</span></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" id="runBtn" disabled>Compare</button>
+            <button class="btn ghost" id="demoBtn">Load demo data</button>
+            <button class="btn ghost" id="resetBtn">Reset</button>
+          </div>
+
+          <div id="errMsg" class="msg"></div>
+          <div class="stats" id="stats" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="hd">
+          <h3>2) Filters and export</h3>
+          <span>Optional</span>
+        </div>
+        <div class="bd">
+          <div class="controls">
+            <div class="field">
+              <label for="searchBox">Search results</label>
+              <input id="searchBox" placeholder="Type a name..." />
+            </div>
+
+            <div class="field">
+              <label for="minDays">Only show followed more than (days ago)</label>
+              <input id="minDays" type="number" min="0" step="1" placeholder="Example: 30" />
+            </div>
+
+            <div class="field">
+              <label for="sortBy">Sort</label>
+              <select id="sortBy">
+                <option value="name">Name A to Z</option>
+                <option value="newest">Followed newest first</option>
+                <option value="oldest">Followed oldest first</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="linkMode">Link type</label>
+              <select id="linkMode" disabled>
+                <option value="fbSearch">Facebook search</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="copyBtn" disabled>Copy list</button>
+            <button class="btn" id="csvBtn" disabled>Download CSV</button>
+          </div>
+
+          <div class="mini" style="margin-top:10px;">
+            Notes: Some accounts (like pages) cannot follow you back, so they may appear in results.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="hd">
+        <h3>3) Results</h3>
+        <span id="resultCount">No results yet</span>
+      </div>
+      <div class="bd">
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:48%;">Name</th>
+                <th style="width:22%;">Followed</th>
+                <th style="width:15%;">Open</th>
+                <th style="width:15%;">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr>
+                <td colspan="4" class="mini" style="padding:16px;">
+                  Upload your files and click Compare. Or use demo data to test the flow.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const els = {
+    followingFile: document.getElementById("followingFile"),
+    followersFile: document.getElementById("followersFile"),
+    followingName: document.getElementById("followingName"),
+    followersName: document.getElementById("followersName"),
+    runBtn: document.getElementById("runBtn"),
+    demoBtn: document.getElementById("demoBtn"),
+    resetBtn: document.getElementById("resetBtn"),
+    csvBtn: document.getElementById("csvBtn"),
+    copyBtn: document.getElementById("copyBtn"),
+    errMsg: document.getElementById("errMsg"),
+    stats: document.getElementById("stats"),
+    tbody: document.getElementById("tbody"),
+    resultCount: document.getElementById("resultCount"),
+    searchBox: document.getElementById("searchBox"),
+    minDays: document.getElementById("minDays"),
+    sortBy: document.getElementById("sortBy"),
+    dropFollowing: document.getElementById("dropFollowing"),
+    dropFollowers: document.getElementById("dropFollowers"),
+  };
+
+  let dataState = {
+    followingRaw: null,
+    followersRaw: null,
+    followingRows: [],
+    followersRows: [],
+    results: [],
+    filtered: [],
+  };
+
+  function setError(msg){
+    els.errMsg.textContent = msg || "";
+  }
+
+  function normalizeName(s) {
+    if (!s) return "";
+    const trimmed = String(s).trim().replace(/\s+/g, " ");
+    const noDiacritics = trimmed.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return noDiacritics.toLowerCase();
+  }
+
+  function fbSearchUrl(name) {
+    return `https://www.facebook.com/search/top?q=${encodeURIComponent(name)}`;
+  }
+
+  function epochToLocalDate(epochSeconds) {
+    if (!epochSeconds && epochSeconds !== 0) return "";
+    const n = Number(epochSeconds);
+    if (Number.isNaN(n)) return "";
+    const d = new Date(n * 1000);
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+  }
+
+  function daysAgoFromEpoch(epochSeconds){
+    if (!epochSeconds && epochSeconds !== 0) return null;
+    const n = Number(epochSeconds);
+    if (Number.isNaN(n)) return null;
+    const ms = Date.now() - (n * 1000);
+    return Math.floor(ms / (1000 * 60 * 60 * 24));
+  }
+
+  async function readJsonFile(file) {
+    const text = await file.text();
+    return JSON.parse(text);
+  }
+
+  // Robust array locator for Facebook export variants
+  function deepFindArray(root, itemTest){
+    const seen = new Set();
+    const queue = [root];
+
+    while (queue.length){
+      const node = queue.shift();
+      if (!node || typeof node !== "object") continue;
+
+      if (seen.has(node)) continue;
+      seen.add(node);
+
+      if (Array.isArray(node)){
+        if (node.length && node.every(x => itemTest(x))) return node;
+        for (const x of node) queue.push(x);
+        continue;
+      }
+
+      for (const k of Object.keys(node)){
+        const v = node[k];
+        if (!v || typeof v !== "object") continue;
+
+        if (Array.isArray(v)){
+          if (v.length && v.every(x => itemTest(x))) return v;
+          for (const x of v) queue.push(x);
+        } else {
+          queue.push(v);
+        }
+      }
+    }
+    return null;
+  }
+
+  function locateFollowersArray(obj){
+    const keys = ["followers_v3","followers_v2","followers","follower","followers_list","people_who_followed_you","people_who_followed_you_v3"];
+    for (const k of keys){
+      if (obj && Array.isArray(obj[k])) return obj[k];
+    }
+    return deepFindArray(obj, (x) => x && typeof x === "object" && typeof x.name === "string");
+  }
+
+  function locateFollowingArray(obj){
+    const keys = ["following_v3","following_v2","following","followed","following_list","who_you've_followed","who_youve_followed","who_you_have_followed"];
+    for (const k of keys){
+      if (obj && Array.isArray(obj[k])) return obj[k];
+    }
+    // Prefer arrays that look like name + timestamp
+    const withTs = deepFindArray(obj, (x) => x && typeof x === "object" && typeof x.name === "string" && (typeof x.timestamp === "number" || typeof x.timestamp === "string"));
+    if (withTs) return withTs;
+
+    // Fallback: array with name only
+    return deepFindArray(obj, (x) => x && typeof x === "object" && typeof x.name === "string");
+  }
+
+  function extractFollowers(obj) {
+    const arr = locateFollowersArray(obj);
+    if (!Array.isArray(arr)) throw new Error("Followers file format not recognized. Make sure you selected Friends and followers and downloaded JSON.");
+    return arr.map(x => ({ name: (x?.name || "").trim() })).filter(x => x.name);
+  }
+
+  function extractFollowing(obj) {
+    const arr = locateFollowingArray(obj);
+    if (!Array.isArray(arr)) throw new Error("Following file format not recognized. Make sure you selected Friends and followers and downloaded JSON.");
+    return arr
+      .map(x => ({ name: (x?.name || "").trim(), timestamp: x?.timestamp }))
+      .filter(x => x.name);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function updateRunEnabled() {
+    const ok = (dataState.followingRaw && dataState.followersRaw) || (els.followingFile.files?.[0] && els.followersFile.files?.[0]);
+    els.runBtn.disabled = !ok;
+  }
+
+  function renderStats(followingCount, followersCount, notBackCount){
+    els.stats.style.display = "flex";
+    els.stats.innerHTML = `
+      <span class="pill"><strong>Following</strong> ${followingCount}</span>
+      <span class="pill"><strong>Followers</strong> ${followersCount}</span>
+      <span class="pill"><strong>Not following back</strong> ${notBackCount}</span>
+    `;
+  }
+
+  function computeResults(){
+    const followerSet = new Set(dataState.followersRows.map(x => normalizeName(x.name)));
+
+    const results = dataState.followingRows
+      .filter(x => !followerSet.has(normalizeName(x.name)))
+      .map(x => {
+        const url = fbSearchUrl(x.name);
+        const followedDate = epochToLocalDate(x.timestamp);
+        const daysAgo = daysAgoFromEpoch(x.timestamp);
+        const note = (daysAgo === null) ? "" : `${daysAgo} day${daysAgo === 1 ? "" : "s"} ago`;
+        return { name: x.name, timestamp: x.timestamp ?? null, followedDate, url, note };
+      });
+
+    dataState.results = results;
+  }
+
+  function applyFilters(){
+    const q = normalizeName(els.searchBox.value || "");
+    const minDays = els.minDays.value ? Math.max(0, Number(els.minDays.value)) : null;
+    const sortBy = els.sortBy.value;
+
+    let rows = [...dataState.results];
+
+    if (q){
+      rows = rows.filter(r => normalizeName(r.name).includes(q));
+    }
+
+    if (minDays !== null){
+      rows = rows.filter(r => {
+        const d = daysAgoFromEpoch(r.timestamp);
+        if (d === null) return true;
+        return d >= minDays;
+      });
+    }
+
+    if (sortBy === "name"){
+      rows.sort((a,b) => a.name.localeCompare(b.name));
+    } else if (sortBy === "newest"){
+      rows.sort((a,b) => (Number(b.timestamp) || -Infinity) - (Number(a.timestamp) || -Infinity));
+    } else if (sortBy === "oldest"){
+      rows.sort((a,b) => (Number(a.timestamp) || Infinity) - (Number(b.timestamp) || Infinity));
+    }
+
+    dataState.filtered = rows;
+  }
+
+  function renderTable(){
+    const rows = dataState.filtered;
+    els.resultCount.textContent = rows.length ? `${rows.length} result${rows.length === 1 ? "" : "s"}` : "No matches";
+
+    if (!dataState.results.length){
+      els.tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="mini" style="padding:16px;">
+            Upload your files and click Compare. Or use demo data to test the flow.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    if (!rows.length){
+      els.tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="mini" style="padding:16px;">
+            No results match your filters.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    els.tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>
+          <div class="nameCell">
+            <strong>${escapeHtml(r.name)}</strong>
+            <div class="sub">${escapeHtml(r.url)}</div>
+          </div>
+        </td>
+        <td>${escapeHtml(r.followedDate || "")}</td>
+        <td><a class="btn" href="${r.url}" target="_blank" rel="noopener noreferrer">Open</a></td>
+        <td class="sub">${escapeHtml(r.note || "")}</td>
+      </tr>
+    `).join("");
+  }
+
+  function toCsv(rows) {
+    const header = ["name", "followedDate", "timestamp", "url"];
+    const lines = [header.join(",")];
+    for (const r of rows) {
+      const vals = [r.name, r.followedDate || "", r.timestamp ?? "", r.url]
+        .map(v => `"${String(v).replaceAll('"', '""')}"`);
+      lines.push(vals.join(","));
+    }
+    return lines.join("\n");
+  }
+
+  function download(filename, text) {
+    const blob = new Blob([text], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function runCompare(){
+    setError("");
+
+    try{
+      if (!dataState.followingRaw){
+        const f = els.followingFile.files?.[0];
+        if (!f) throw new Error("Please select your following file.");
+        dataState.followingRaw = await readJsonFile(f);
+      }
+      if (!dataState.followersRaw){
+        const f = els.followersFile.files?.[0];
+        if (!f) throw new Error("Please select your followers file.");
+        dataState.followersRaw = await readJsonFile(f);
+      }
+
+      dataState.followingRows = extractFollowing(dataState.followingRaw);
+      dataState.followersRows = extractFollowers(dataState.followersRaw);
+
+      computeResults();
+      applyFilters();
+      renderTable();
+
+      renderStats(dataState.followingRows.length, dataState.followersRows.length, dataState.results.length);
+
+      els.csvBtn.disabled = dataState.filtered.length === 0;
+      els.copyBtn.disabled = dataState.filtered.length === 0;
+
+    } catch(e){
+      setError(e?.message || String(e));
+    }
+  }
+
+  function resetAll(){
+    dataState = {
+      followingRaw: null,
+      followersRaw: null,
+      followingRows: [],
+      followersRows: [],
+      results: [],
+      filtered: [],
+    };
+
+    els.followingFile.value = "";
+    els.followersFile.value = "";
+    els.followingName.textContent = "No file selected";
+    els.followersName.textContent = "No file selected";
+    els.stats.style.display = "none";
+    els.csvBtn.disabled = true;
+    els.copyBtn.disabled = true;
+    els.runBtn.disabled = true;
+    els.searchBox.value = "";
+    els.minDays.value = "";
+    els.sortBy.value = "name";
+    els.tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="mini" style="padding:16px;">
+          Upload your files and click Compare. Or use demo data to test the flow.
+        </td>
+      </tr>
+    `;
+    els.resultCount.textContent = "No results yet";
+    setError("");
+  }
+
+  function loadDemo(){
+    const demoFollowing = {
+      "following_v3": [
+        { "name": "Christy Oluebube", "timestamp": 1765324800 },
+        { "name": "Amazon.com", "timestamp": 1764374400 },
+        { "name": "Mookie Young", "timestamp": 1762905600 },
+        { "name": "Unscarred Mirror", "timestamp": 1766016000 }
+      ]
+    };
+    const demoFollowers = {
+      "followers_v3": [
+        { "name": "Unscarred Mirror" },
+        { "name": "Mookie Young" }
+      ]
+    };
+
+    dataState.followingRaw = demoFollowing;
+    dataState.followersRaw = demoFollowers;
+
+    els.followingName.textContent = "Demo following data loaded";
+    els.followersName.textContent = "Demo followers data loaded";
+    els.runBtn.disabled = false;
+
+    runCompare();
+  }
+
+  function handleFilePicked(which){
+    const f = which === "following" ? els.followingFile.files?.[0] : els.followersFile.files?.[0];
+    if (!f) return;
+
+    if (which === "following"){
+      dataState.followingRaw = null;
+      els.followingName.textContent = f.name;
+    } else {
+      dataState.followersRaw = null;
+      els.followersName.textContent = f.name;
+    }
+    updateRunEnabled();
+  }
+
+  function setupDropzone(dropEl, inputEl){
+    const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+    ["dragenter","dragover","dragleave","drop"].forEach(ev => dropEl.addEventListener(ev, prevent));
+
+    dropEl.addEventListener("dragenter", () => dropEl.classList.add("drag"));
+    dropEl.addEventListener("dragleave", () => dropEl.classList.remove("drag"));
+    dropEl.addEventListener("drop", (e) => {
+      dropEl.classList.remove("drag");
+      const file = e.dataTransfer.files?.[0];
+      if (!file) return;
+      if (!file.name.toLowerCase().endsWith(".json")){
+        setError("Please drop a .json file.");
+        return;
+      }
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      inputEl.files = dt.files;
+      inputEl.dispatchEvent(new Event("change"));
+    });
+
+    dropEl.addEventListener("click", () => inputEl.click());
+    dropEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") inputEl.click();
+    });
+  }
+
+  els.followingFile.addEventListener("change", () => handleFilePicked("following"));
+  els.followersFile.addEventListener("change", () => handleFilePicked("followers"));
+
+  els.runBtn.addEventListener("click", runCompare);
+  els.demoBtn.addEventListener("click", loadDemo);
+  els.resetBtn.addEventListener("click", resetAll);
+
+  els.csvBtn.addEventListener("click", () => {
+    if (!dataState.filtered.length) return;
+    download("not-following-back.csv", toCsv(dataState.filtered));
+  });
+
+  els.copyBtn.addEventListener("click", async () => {
+    try{
+      const lines = dataState.filtered.map(r => `${r.name} | ${r.followedDate || ""} | ${r.url}`);
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setError("");
+      els.copyBtn.textContent = "Copied";
+      setTimeout(() => els.copyBtn.textContent = "Copy list", 900);
+    } catch(e){
+      setError("Copy failed. Use CSV instead.");
+    }
+  });
+
+  ["input","change"].forEach(ev => {
+    els.searchBox.addEventListener(ev, () => { applyFilters(); renderTable(); });
+    els.minDays.addEventListener(ev, () => { applyFilters(); renderTable(); });
+    els.sortBy.addEventListener(ev, () => { applyFilters(); renderTable(); });
+  });
+
+  setupDropzone(els.dropFollowing, els.followingFile);
+  setupDropzone(els.dropFollowers, els.followersFile);
+</script>
+</body>
+</html>
+
+
