@@ -1,0 +1,53 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+button {
+  background: #0ea5e9;
+  border: 0;
+  color: white;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 0.5rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  margin-top: 0.5rem;
+  box-sizing: border-box;
+}
+
+video, canvas {
+  width: 100%;
+  border-radius: 10px;
+  margin-top: 0.75rem;
+}
+
+small {
+  color: #94a3b8;
+}
